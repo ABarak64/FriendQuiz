@@ -95,11 +95,26 @@ angular.module('sociogram.controllers', [])
 
         function loadFeed() {
             $scope.show();
-            OpenFB.get('/' + $stateParams.personId + '/home', {limit: 30})
+            OpenFB.get('/' + $stateParams.personId + '/home', { limit: 30 })
                 .success(function (result) {
                     $scope.hide();
-                    console.log(result); // TEST
-                    $scope.items = result.data;
+
+                    // filter the news feed to leave only items shared by friends.
+                    var filteredList = [];
+                    angular.forEach(result.data, function (post) {
+                        if (typeof post.from.category === 'undefined') {
+                            console.log(post);
+                            if (typeof post.message !== 'undefined') {
+                                post.message = post.message.replace(post.from.name, 'Mystery Person');
+                            }
+                            if (typeof post.story !== 'undefined') {
+                                post.story = post.story.replace(post.from.name, 'Mystery Person');
+                            }
+                            filteredList.push(post);
+                        }
+                    })
+
+                    $scope.items = filteredList;
                     // Used with pull-to-refresh
                     $scope.$broadcast('scroll.refreshComplete');
                 })
