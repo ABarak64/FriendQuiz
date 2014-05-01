@@ -15,7 +15,7 @@
             <div class="item item-avatar">
                 <img src="https://graph.facebook.com/{{ item.from.id }}/picture"/>
                 <h2>{{item.from.name}}</h2>
-                <p>{{item.created_time | date:'MMM d, y h:mma'}}</p>
+                <p>{{item.updated_time | date:'MMM d, y h:mma'}}</p>
             </div>
             <div class="item item-body">
                 <p ng-if="item.story">{{item.story}}</p>
