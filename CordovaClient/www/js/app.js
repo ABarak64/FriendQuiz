@@ -1,4 +1,4 @@
-angular.module('sociogram', ['ionic', 'openfb', 'sociogram.controllers'])
+var app = angular.module('friendquiz', ['ionic', 'openfb'])
 
     .run(function ($rootScope, $state, $ionicPlatform, $window, OpenFB) {
 
@@ -63,31 +63,12 @@ angular.module('sociogram', ['ionic', 'openfb', 'sociogram.controllers'])
                 }
             })
 
-            .state('app.share', {
-                url: "/share",
-                views: {
-                    'menuContent': {
-                        templateUrl: "templates/share.html",
-                        controller: "ShareCtrl"
-                    }
-                }
-            })
-
             .state('app.friends', {
                 url: "/person/:personId/friends",
                 views: {
                     'menuContent': {
                         templateUrl: "templates/friend-list.html",
                         controller: "FriendsCtrl"
-                    }
-                }
-            })
-            .state('app.mutualfriends', {
-                url: "/person/:personId/mutualfriends",
-                views: {
-                    'menuContent': {
-                        templateUrl: "templates/mutual-friend-list.html",
-                        controller: "MutualFriendsCtrl"
                     }
                 }
             })
