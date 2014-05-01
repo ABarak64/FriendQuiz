@@ -1,6 +1,6 @@
 angular.module('friendquiz')
 
-    .controller('FeedCtrl', function ($scope, $stateParams, OpenFB, $ionicLoading) {
+    .controller('FeedCtrl', function ($scope, $stateParams, OpenFB, $ionicLoading, FriendQuizService) {
 
         $scope.show = function() {
             $scope.loading = $ionicLoading.show({
@@ -13,10 +13,13 @@ angular.module('friendquiz')
 
         function loadFeed() {
             $scope.show();
-            OpenFB.get('/' + $stateParams.personId + '/home', { limit: 30 })
+
+            FriendQuizService.getQuestion()
+            //OpenFB.get('/' + $stateParams.personId + '/home', { limit: 30 })
                 .success(function (result) {
                     $scope.hide();
 
+                    console.log('friendquizservice working');
                     // filter the news feed to leave only items shared by friends.
                     var filteredList = [];
                     angular.forEach(result.data, function (post) {
