@@ -14,29 +14,13 @@ angular.module('friendquiz')
         function loadFeed() {
             $scope.show();
 
-            console.log('inside getquestion');
             FriendQuizService.getQuestion()
-                .then(function (result) {
+                .then(function (question) {
                     $scope.hide();
 
-                    // filter the news feed to leave only items shared by friends.
-                    var filteredList = [];
-                    angular.forEach(result.data, function (post) {
-                        console.log(post);
-                        if (typeof post.message !== 'undefined') {
-                            post.message = post.message.replace(post.from.name, 'Mystery Person');
-                        } else if (typeof post.place !== 'undefined') {
-                            post.message = 'Mystery Person just visited ' + post.place.name;
-                        }
-                        if (typeof post.story !== 'undefined') {
-                            post.story = post.story.replace(post.from.name, 'Mystery Person');
-                        }
-                        filteredList.push(post);
-                    })
-
-                    $scope.items = filteredList;
-                    // Used with pull-to-refresh
-                    $scope.$broadcast('scroll.refreshComplete');
+                    console.log('my question');
+                    console.log(question);
+                    $scope.question = question;
                 });
         }
 

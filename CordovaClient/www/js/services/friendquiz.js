@@ -6,8 +6,9 @@ angular.module('friendquiz')
 
         function getFriends() {
             var deferred = $q.defer();
+
             if (friends.length === 0) {
-                OpenFB.get('/me/friends', { limit: 50 })
+                OpenFB.get('/me/friends', { limit: 100 })
                     .success(function (result) {
                         friends = result.data;
                         deferred.resolve();
@@ -22,20 +23,92 @@ angular.module('friendquiz')
             return deferred.promise;
         };
 
-        return {
-            getQuestion: function () {
-                var deferred = $q.defer();
-                getFriends().then(function () {
-                    OpenFB.get('/6015710/statuses', { limit: 30 })
-                        .success(function (result) {
-                            deferred.resolve(result);
-                        })
-                        .error(function (data) {
-                            alert(data.error.message);
-                            deferred.reject();
-                        });
+        function getRandomFriendStatus(friends) {
+            var deferred = $q.defer();
+
+            
+            var answerFriend = friends[Math.ceil(Math.random() * friends.length) - 1];
+            OpenFB.get('/' + answerFriend.id + '/statuses', { limit: 50 })
+                .success(function (result) {
+                    deferred.resolve(result);
+                })
+                .error(function (data) {
+                    alert(data.error.message);
+                    deferred.reject();
                 });
-                return deferred.promise;
-            }               
+
+            return deferred.promise;
+        }
+
+        function getSomeRandomFriends() {
+            var randomFriends = [];
+            for (var i = 0; i < 4; i++) {
+                var index = Math.ceil(Math.random() * (friends.length - 1 - i));
+                randomFriends.push(friends[index]);
+                var temp = friends[index];
+                friends[index] = friends[friends.length - 1 - i];
+                friends[friends.length - 1 - i] = temp;
+            }
+            return randomFriends;
+        }
+
+        function resultsAreBad(status)
+        {
+            if (status.data.length === 0) {
+                return true;
+            }
+            var foundAGoodStatus = false;
+            angular.forEach(status.data, function (post) {
+                if (typeof post.message !== 'undefined') {
+                    foundAGoodStatus = true;
+                }
+            });
+            return !foundAGoodStatus;
+        }
+
+        function getAndFilterASingleStatusUpdate(status) {
+            var randomStatusIndex = 0;
+
+            var goodStatuses = [];
+            angular.forEach(status.data, function (post) {
+                if (typeof post.message !== 'undefined') {
+                    goodStatuses.push(post);
+                }
+            })
+
+            var post = goodStatuses[Math.ceil(Math.random() * goodStatuses.length) - 1];
+            post.message = post.message.replace(post.from.name, 'Mystery Person');
+            if (typeof post.story !== 'undefined') {
+                post.story = post.story.replace(post.from.name, 'Mystery Person');
+            }
+            return post;
+        }
+
+        // Recursive function that keeps going until it finds someone with statuses.
+        function getQuestion(deferred) {
+            if (!deferred) {
+                deferred = $q.defer();
+            }
+
+            getFriends().then(function () {
+                var friends = getSomeRandomFriends();
+                getRandomFriendStatus(friends).then(function (status) {
+                    if (resultsAreBad(status)) {
+                        getQuestion(deferred);
+                    } else {
+                        var question = {
+                            friends: friends,
+                            mysteryStatus: getAndFilterASingleStatusUpdate(status)
+                        };                      
+                        deferred.resolve(question);
+                    }
+                })    
+            });
+            deferred.notify();
+            return deferred.promise;
+        }               
+
+        return {
+            getQuestion: getQuestion
         };
     });
