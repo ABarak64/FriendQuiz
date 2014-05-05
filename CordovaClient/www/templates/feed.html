@@ -3,21 +3,29 @@
     <ion-nav-buttons side="left">
         <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
     </ion-nav-buttons>
-
     <ion-content has-header="true" padding="true">
-        <div class="item item-avatar">
-            <img ng-src="https://graph.facebook.com/{{question.mysteryStatus.from.id}}/picture" />
+        <div class="item item-avatar" ng-show="question !== null">
+            <img ng-src="{{questionImg}}" />
             <p ng-if="question.mysteryStatus.story">{{question.mysteryStatus.story}}</p>
             <p>{{question.mysteryStatus.message}}</p>
             <img ng-if="question.mysteryStatus.picture" ng-src="{{question.mysteryStatus.picture}}" />
-            <p>{{question.mysteryStatus.updated_time | date:'MMM d, y h:mma'}}</p>
+            <span ng-show="answered !== null">{{question.mysteryStatus.from.name}},</span>
+            <span>{{question.mysteryStatus.updated_time | date:'MMM d, y h:mma'}}</span>
         </div>
-
-        <div ng-repeat="friend in question.friends">
-            <div class="item item-avatar">
-                <img ng-src="https://graph.facebook.com/{{friend.id}}/picture" />
-                <h2>{{friend.name}}</h2>
+        <div ng-show="answered === null">
+            <h4>Who said it?</h4>
+            <div ng-repeat="friend in question.friends">
+                <div class="item item-avatar" ng-click="selectFriend(friend)">
+                    <img ng-src="https://graph.facebook.com/{{friend.id}}/picture" />
+                    <h2>{{friend.name}}</h2>
+                </div>
             </div>
+        </div>
+        <div ng-show="answered !== null">
+            <h4>{{answered.message}}</h4>
+            <button class="button button-block button-positive" ng-click="nextQuestion()">
+                Next Question
+            </button>
         </div>
     </ion-content>
 
