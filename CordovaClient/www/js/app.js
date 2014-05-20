@@ -96,3 +96,9 @@ var app = angular.module('friendquiz', ['ionic', 'openfb'])
 
     });
 
+app.config(['$httpProvider', function ($httpProvider) {
+    $httpProvider.defaults.useXDomain = true;
+    delete $httpProvider.defaults.headers.common['X-Requested-With'];
+    }
+]);
+

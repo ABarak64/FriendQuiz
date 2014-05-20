@@ -124,7 +124,7 @@ angular.module('openfb', [])
                 queryString = url.substr(url.indexOf('#') + 1);
                 obj = parseQueryString(queryString);
                 tokenStore['fbtoken'] = obj['access_token'];
-                deferredLogin.resolve();
+                getUserId();
             } else if (url.indexOf("error=") > 0) {
                 queryString = url.substring(url.indexOf('?') + 1, url.indexOf('#'));
                 obj = parseQueryString(queryString);
@@ -132,6 +132,17 @@ angular.module('openfb', [])
             } else {
                 deferredLogin.reject();
             }
+        }
+
+        function getUserId() {
+            get('/me')
+                .success(function (result) {
+                    tokenStore['userid'] = result.id;
+                    deferredLogin.resolve();
+                })
+                .error(function (data) {
+                    deferredLogin.reject();
+                });
         }
 
         /**
@@ -215,7 +226,13 @@ angular.module('openfb', [])
             api: api,
             post: post,
             get: get,
-            oauthCallback: oauthCallback
+            oauthCallback: oauthCallback,
+            getFbToken: function () {
+                return tokenStore['fbtoken'];
+            },
+            getFbId: function() {
+                return tokenStore['userid'];
+            }
         }
 
     });

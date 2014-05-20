@@ -84,29 +84,15 @@ angular.module('friendquiz')
             return post;
         }
 
-        // Recursive function that keeps going until it finds someone with statuses.
-        function getQuestion(deferred) {
-            if (!deferred) {
-                deferred = $q.defer();
-            }
-
-            getFriends().then(function () {
-                var friends = getSomeRandomFriends();
-                getRandomFriendStatus(friends).then(function (status) {
-                    if (resultsAreBad(status)) {
-                        getQuestion(deferred);
-                    } else {
-                        var question = {
-                            friends: friends,
-                            mysteryStatus: getAndFilterASingleStatusUpdate(status)
-                        };                      
-                        deferred.resolve(question);
-                    }
-                })    
-            });
-            deferred.notify();
-            return deferred.promise;
-        }               
+        function getQuestion() {
+            var header = {
+                headers: {
+                    'userid': OpenFB.getFbId(),
+                    'token': OpenFB.getFbToken()
+                }
+            };
+            return $http.get('http://friendquiz-yup.rhcloud.com/question/', header);
+        };      
 
         return {
             getQuestion: getQuestion

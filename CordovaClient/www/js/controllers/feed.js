@@ -1,10 +1,15 @@
 angular.module('friendquiz')
 
-    .controller('FeedCtrl', function ($scope, $stateParams, OpenFB, $ionicLoading, FriendQuizService) {
+    .controller('FeedCtrl', function ($scope, $stateParams, OpenFB, $ionicLoading, FriendQuizService, $rootScope) {
         
         $scope.answered = null;
         $scope.question = null;
         $scope.questionImg = 'img/mystery.jpg';
+
+        // If getting a question causes an OAuth exception, hide the 'loading' screen if it is up.
+        $rootScope.$on('OAuthException', function () {
+            $scope.hide();
+        });
 
         $scope.show = function() {
             $scope.loading = $ionicLoading.show({
@@ -38,11 +43,8 @@ angular.module('friendquiz')
             $scope.show();
 
             FriendQuizService.getQuestion()
-                .then(function (question) {
+                .success(function (question) {
                     $scope.hide();
-
-                    console.log('my question');
-                    console.log(question);
                     $scope.question = question;
                 });
         }
