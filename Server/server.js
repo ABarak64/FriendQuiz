@@ -94,14 +94,12 @@ var SampleApp = function() {
      *  Create the routing table entries + handlers for the application.
      */
     self.createRoutes = function() {
-        self.routes = { };
-
-        self.routes['/'] = function(req, res) {
+        self.app.get('/', function(req, res) {
             res.setHeader('Content-Type', 'text/html');
             res.send(self.cache_get('index.html') );
-        };
+        });
 
-        self.routes['/question'] = function(req, res) {
+        self.app.get('/question', function(req, res) {
             var friendService = new FriendQuiz(req.facebookUser);
             friendService.getQuestion()
                 .then(function(result) {
@@ -109,7 +107,16 @@ var SampleApp = function() {
                 }, function(error) {
                     res.send(error);
                 });
-        };
+        });
+
+        self.app.post('/answer', function(req, res) {
+            var friendService = new FriendQuiz(req.facebookUser);
+            friendService.guessAnswer(parseInt(req.body.answer)).then(function(result) {
+                res.send(result);
+            }).fail(function(err) {
+                res.send(err);
+            });
+        });
     };
 
 
@@ -118,12 +125,16 @@ var SampleApp = function() {
      *  the handlers.
      */
     self.initializeServer = function() {
-        self.createRoutes();
+
         self.app = express.createServer();
+
+        self.app.use(express.json());
+        self.app.use(express.urlencoded());
 
         self.app.all('/*', function(req, res, next) {
             res.header("Access-Control-Allow-Origin", "*");
-            res.header("Access-Control-Allow-Headers", "userid,token");
+            res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+            res.header("Access-Control-Allow-Headers", "userid,token,Content-Type");
             next();
         });
 
@@ -139,10 +150,7 @@ var SampleApp = function() {
             }
         });
 
-        //  Add handlers for the app (from the routes).
-        for (var r in self.routes) {
-            self.app.get(r, self.routes[r]);
-        }
+        self.createRoutes();
     };
 
 

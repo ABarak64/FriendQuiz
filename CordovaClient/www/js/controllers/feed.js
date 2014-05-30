@@ -29,24 +29,37 @@ angular.module('friendquiz')
         }
 
         $scope.selectFriend = function (friend) {
-            $scope.questionImg = 'https://graph.facebook.com/' + $scope.question.mysteryStatus.from.id + '/picture';
-            var answered = {
-                message: 'Sorry, you were wrong.'
-            };
-            if (friend.id === $scope.question.mysteryStatus.from.id) {
-                answered.message = 'You were correct!';
-            }
-            $scope.answered = answered;
+            $scope.show();
+            FriendQuizService.guessAnswer(friend.id)
+               .success(function (result) {
+                   $scope.questionImg = 'https://graph.facebook.com/' + result.correctId + '/picture';
+                   $scope.question.mysteryStatus.from = {
+                       name: $scope.question.friends.filter(function (i) { return i.id === result.correctId + ''; })[0].name
+                   };
+                   $scope.answered = {
+                       message: result.correct ? 'You were correct!' : 'Sorry, you were wrong.'
+                   };
+                   $scope.hide();
+               }).error(function (err) {
+                   $scope.hide();
+               });
+
         }
 
         function loadQuestion() {
             $scope.show();
 
             FriendQuizService.getQuestion()
-                .success(function (question) {
+                .success(function(question) {
                     $scope.hide();
                     $scope.question = question;
-                });
+                    console.log('got question');
+                    console.log($scope.question);
+                }).error(function (err) {
+                    $scope.hide();
+                    console.log('question error');
+                    console.log(err);
+            });
         }
 
         loadQuestion();

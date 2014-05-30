@@ -32,6 +32,7 @@ function FriendQuiz(facebookInfo) {
         if (typeof post.story !== 'undefined') {
             post.story = post.story.replace(post.from.name, 'Mystery Person');
         }
+        delete post.from;
         return post;
     };
 
@@ -51,31 +52,70 @@ function FriendQuiz(facebookInfo) {
         if (!deferred) {
             deferred = Q.defer();
          }
+        var friendSet, question, correctAnswer;
 
-        quizData.getFriends().then(function (friends) {
-            var friendSet = getSomeRandomFriends(friends);
-            var answerFriend = friendSet[Math.ceil(Math.random() * friendSet.length) - 1];
-
-             return quizData.getFriendStatuses(answerFriend).then(function (status) {
+        quizData.getFriends()
+            .then(function (friends) {
+                friendSet = getSomeRandomFriends(friends);
+                var answerFriend = friendSet[Math.ceil(Math.random() * friendSet.length) - 1];
+                correctAnswer = answerFriend.id;
+                return quizData.getFriendStatuses(answerFriend);
+            }).then(function(status) {
                 if (resultsAreBad(status.data)) {
                     getQuestion(deferred);
                 } else {
-                    var question = {
+                    question = {
                         friends: friendSet,
                         mysteryStatus: getAndFilterASingleStatusUpdate(status.data)
                     };
-                    deferred.resolve(question);
+                    return quizData.saveAnswer(correctAnswer);
                 }
-            }).fail(function(error) {
+            }).then(function() {
+                deferred.resolve(question);
+            }).fail(function (error) {
                 deferred.reject(error);
             });
-        });
+
         deferred.notify();
         return deferred.promise;
     };
 
+    function guessAnswer(answerUserId) {
+        var result = {};
+        var deferred = Q.defer();
+
+        quizData.getUser()
+            .then(function(user) {
+                if (typeof user.answer === 'undefined' || user.answer === 0) {
+                    deferred.reject(new Error('User had no set question.'));
+                } else {
+                    result.correctId = user.answer;
+                    if (user.answer === answerUserId) {
+                        result.correct = true;
+                        user.correctStreak++;
+                        if (user.correctStreak > user.highScore) {
+                            user.highScore = user.correctStreak;
+                        }
+                    } else {
+                        result.correct = false;
+                        user.correctStreak = 0;
+                    }
+                    user.answer = 0;
+
+                    return quizData.updateUser(user);
+                }
+            }).then(function() {
+                deferred.resolve(result);
+            }).fail(function (err) {
+                deferred.reject(err);
+            });
+
+        return deferred.promise;
+    };
+
     return {
-        getQuestion: getQuestion
+        getQuestion: getQuestion,
+        guessAnswer: guessAnswer
     }
 };
 

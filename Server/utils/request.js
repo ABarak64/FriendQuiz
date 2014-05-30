@@ -34,6 +34,8 @@ exports.getJSON = function (url, onResult, onError) {
 exports.getJSONAsync = function (url) {
 
     var deferred = Q.defer();
+    var badRequest = false;
+
     var req = https.request(url, function (res) {
         var output = '';
         res.setEncoding('utf8');
@@ -44,12 +46,21 @@ exports.getJSONAsync = function (url) {
 
         res.on('end', function () {
             var obj = JSON.parse(output);
-            deferred.resolve(obj);
+            if (badRequest) {
+                deferred.reject(obj);
+            } else {
+                deferred.resolve(obj);
+            }
         });
     });
 
     req.on('error', function (err) {
         deferred.reject(new Error(err));
+    });
+
+    req.on('response', function (response) {
+        if (response.statusCode === 500 || response.statusCode === 400)
+            badRequest = true;
     });
 
     req.end();
