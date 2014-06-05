@@ -48,7 +48,24 @@ function FriendQuiz(facebookInfo) {
         return randomFriends;
     };
 
-    function getQuestion (deferred) {
+    function getQuestion() {
+        var deferred = Q.defer();
+
+        var set;
+        makeQuestion()
+            .then(function (questionAnswerSet) {
+                set = questionAnswerSet;
+                return quizData.saveAnswer(set.answer);
+            }).then(function () {
+                deferred.resolve(set.question);
+            }).fail(function (error) {
+                deferred.reject(error);
+            });
+
+        return deferred.promise;
+    }
+
+    function makeQuestion (deferred) {
         if (!deferred) {
             deferred = Q.defer();
          }
@@ -60,18 +77,19 @@ function FriendQuiz(facebookInfo) {
                 var answerFriend = friendSet[Math.ceil(Math.random() * friendSet.length) - 1];
                 correctAnswer = answerFriend.id;
                 return quizData.getFriendStatuses(answerFriend);
-            }).then(function(status) {
+            }).then(function (status) {
                 if (resultsAreBad(status.data)) {
-                    getQuestion(deferred);
+                    makeQuestion(deferred);
                 } else {
                     question = {
                         friends: friendSet,
                         mysteryStatus: getAndFilterASingleStatusUpdate(status.data)
                     };
-                    return quizData.saveAnswer(correctAnswer);
+                    deferred.resolve({ 
+                        question: question,
+                        answer: correctAnswer
+                    });
                 }
-            }).then(function() {
-                deferred.resolve(question);
             }).fail(function (error) {
                 deferred.reject(error);
             });

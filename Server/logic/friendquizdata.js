@@ -3,14 +3,13 @@
 var Q = require('q');
 var request = require('../utils/request');
 var AWS = require('aws-sdk');
-var config = required('../config');
+var config = require('../config');
 
 AWS.config.update({ accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey, region: 'us-west-2' });
 
 
 function FriendQuizData(facebookInfo) {
     var friends = [];
-    var user = null;
     var db = new AWS.DynamoDB({ apiVersion: '2014-05-21' });
 
     function getFriends() {
@@ -148,7 +147,7 @@ function FriendQuizData(facebookInfo) {
             if (err) {
                 deferred.reject(err);
             } else {
-                deferred.resolve();
+                deferred.resolve(data);
             }
         });
 
