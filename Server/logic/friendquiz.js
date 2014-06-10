@@ -5,6 +5,8 @@ var FriendQuizData = require('./friendquizdata');
 
 function FriendQuiz(facebookInfo) {
     var quizData = new FriendQuizData(facebookInfo);
+    var numberOfBadAttempts;
+    var maxBadAttempts = 3;
 
     function resultsAreBad (statuses) {
         if (statuses.length === 0) {
@@ -51,6 +53,7 @@ function FriendQuiz(facebookInfo) {
     function getQuestion() {
         var deferred = Q.defer();
 
+        numberOfBadAttempts = 0;
         var set;
         makeQuestion()
             .then(function (questionAnswerSet) {
@@ -79,7 +82,12 @@ function FriendQuiz(facebookInfo) {
                 return quizData.getFriendStatuses(answerFriend);
             }).then(function (status) {
                 if (resultsAreBad(status.data)) {
-                    makeQuestion(deferred);
+                    numberOfBadAttempts++;
+                    if (numberOfBadAttempts > maxBadAttempts) {
+                        deferred.reject(new Error('Could not get a question.'));
+                    } else {
+                        makeQuestion(deferred);
+                    }
                 } else {
                     question = {
                         friends: friendSet,

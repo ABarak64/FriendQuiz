@@ -5,15 +5,16 @@ angular.module('friendquiz')
         $scope.answered = null;
         $scope.question = null;
         $scope.questionImg = 'img/mystery.jpg';
+        $scope.error = null;
 
         // If getting a question causes an OAuth exception, hide the 'loading' screen if it is up.
         $rootScope.$on('OAuthException', function () {
             $scope.hide();
         });
 
-        $scope.show = function() {
+        $scope.show = function(msg) {
             $scope.loading = $ionicLoading.show({
-                content: 'Getting a question...'
+                content: msg
             });
         };
 
@@ -29,7 +30,7 @@ angular.module('friendquiz')
         }
 
         $scope.selectFriend = function (friend) {
-            $scope.show();
+            $scope.show('Sending answer...');
             FriendQuizService.guessAnswer(friend.id)
                .success(function (result) {
                    $scope.questionImg = 'https://graph.facebook.com/' + result.correctId + '/picture';
@@ -47,18 +48,15 @@ angular.module('friendquiz')
         }
 
         function loadQuestion() {
-            $scope.show();
+            $scope.show('Getting a question...');
 
             FriendQuizService.getQuestion()
-                .success(function(question) {
+                .then(function(question) {
                     $scope.hide();
                     $scope.question = question;
-                    console.log('got question');
-                    console.log($scope.question);
-                }).error(function (err) {
+                }).catch(function (err) {
                     $scope.hide();
-                    console.log('question error');
-                    console.log(err);
+                    $scope.error = err;
             });
         }
 

@@ -105,7 +105,7 @@ var SampleApp = function() {
                 .then(function(result) {
                     res.send(result);
                 }, function(error) {
-                    res.send(error);
+                    res.send({ error: error.message });
                 });
         });
 
@@ -113,8 +113,8 @@ var SampleApp = function() {
             var friendService = new FriendQuiz(req.facebookUser);
             friendService.guessAnswer(parseInt(req.body.answer)).then(function(result) {
                 res.send(result);
-            }).fail(function(err) {
-                res.send(err);
+            }).fail(function(error) {
+                res.send({ error: error.message });
             });
         });
     };

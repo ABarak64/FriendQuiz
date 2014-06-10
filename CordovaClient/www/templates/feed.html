@@ -12,7 +12,7 @@
             <span ng-show="answered !== null">{{question.mysteryStatus.from.name}},</span>
             <span>{{question.mysteryStatus.updated_time | date:'MMM d, y h:mma'}}</span>
         </div>
-        <div ng-show="answered === null">
+        <div ng-show="answered === null && question !== null">
             <h4>Who said it?</h4>
             <div ng-repeat="friend in question.friends">
                 <div class="item item-avatar" ng-click="selectFriend(friend)">
@@ -21,8 +21,13 @@
                 </div>
             </div>
         </div>
-        <div ng-show="answered !== null">
+        <div ng-show="error !== null">
+            <h4>Error: {{error.error}}</h4>
+        </div>
+        <div ng-show="answered !== null && error === null">
             <h4>{{answered.message}}</h4>
+        </div>
+        <div ng-show="answered !== null || error !== null">
             <button class="button button-block button-positive" ng-click="nextQuestion()">
                 Next Question
             </button>
