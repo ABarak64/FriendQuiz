@@ -127,6 +127,7 @@ function FriendQuiz(facebookInfo) {
                         user.correctStreak = 0;
                     }
                     user.answer = 0;
+                    result.correctStreak = user.correctStreak;
 
                     return quizData.updateUser(user);
                 }

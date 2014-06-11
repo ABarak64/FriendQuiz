@@ -25,7 +25,8 @@
             <h4>Error: {{error.error}}</h4>
         </div>
         <div ng-show="answered !== null && error === null">
-            <h4>{{answered.message}}</h4>
+            <h4 ng-show="answered.correct">You were correct! Your current streak is {{answered.correctStreak}} in a row.</h4>
+            <h4 ng-show="!answered.correct">Sorry, you were wrong.</h4>
         </div>
         <div ng-show="answered !== null || error !== null">
             <button class="button button-block button-positive" ng-click="nextQuestion()">

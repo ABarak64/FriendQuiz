@@ -37,9 +37,7 @@ angular.module('friendquiz')
                    $scope.question.mysteryStatus.from = {
                        name: $scope.question.friends.filter(function (i) { return i.id === result.correctId + ''; })[0].name
                    };
-                   $scope.answered = {
-                       message: result.correct ? 'You were correct!' : 'Sorry, you were wrong.'
-                   };
+                   $scope.answered = result; 
                    $scope.hide();
                }).error(function (err) {
                    $scope.hide();
