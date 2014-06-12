@@ -84,7 +84,7 @@ function FriendQuiz(facebookInfo) {
                 if (resultsAreBad(status.data)) {
                     numberOfBadAttempts++;
                     if (numberOfBadAttempts > maxBadAttempts) {
-                        deferred.reject(new Error('Could not get a question.'));
+                        deferred.reject({ error: { message: 'Could not get a question.' }});
                     } else {
                         makeQuestion(deferred);
                     }
@@ -113,7 +113,7 @@ function FriendQuiz(facebookInfo) {
         quizData.getUser()
             .then(function(user) {
                 if (typeof user.answer === 'undefined' || user.answer === 0) {
-                    deferred.reject(new Error('User had no set question.'));
+                    deferred.reject({ error: { message: 'User has no set question.' } });
                 } else {
                     result.correctId = user.answer;
                     if (user.answer === answerUserId) {
@@ -140,9 +140,25 @@ function FriendQuiz(facebookInfo) {
         return deferred.promise;
     };
 
+    function getFriendHighScores() {
+        var deferred = Q.defer();
+
+        quizData.getFriends()
+            .then(function (friends) {
+                return quizData.getFriendHighScores(friends);
+            }).then(function (result) {
+                deferred.resolve(result);
+            }).fail(function (err) {
+                deferred.reject(err);
+            });
+
+        return deferred.promise;
+    };
+
     return {
         getQuestion: getQuestion,
-        guessAnswer: guessAnswer
+        guessAnswer: guessAnswer,
+        getFriendHighScores: getFriendHighScores
     }
 };
 

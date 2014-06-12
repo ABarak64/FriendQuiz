@@ -154,12 +154,58 @@ function FriendQuizData(facebookInfo) {
         return deferred.promise;
     }
 
+    function getFriendHighScores(myFriends) {
+        var deferred = Q.defer();
+        var keyList = [];
+        myFriends.push({
+            id: facebookInfo.id + '',
+            name: 'You'
+        });
+
+        myFriends.forEach(function(friend) {
+            keyList.push({ Id: { N: friend.id + '' } });
+        });
+
+        var params = {
+            RequestItems: {
+               'Users' : {
+                   Keys: keyList,
+                   AttributesToGet: [
+                       'Id',
+                       'HighScore'
+                   ]
+               }
+            }
+        };
+
+        db.batchGetItem(params, function (err, data) {
+            if (err) {
+                deferred.reject(err);
+            } else {
+                var friendsWithHighScores = [];
+                data.Responses.Users.forEach(function (user) {
+                    friendsWithHighScores.push({
+                        id: user.Id.N,
+                        highScore: user.HighScore.N,
+                        name: myFriends.filter(function(f) {
+                            return f.id === user.Id.N;
+                        })[0].name
+                    });
+                });
+                deferred.resolve(friendsWithHighScores.sort(function (a,b) { return b.highScore - a.highScore }));
+            }
+        });
+
+        return deferred.promise;
+    };
+
     return {
         getFriendStatuses: getFriendStatuses,
         getFriends: getFriends,
         saveAnswer: saveAnswer,
         getUser: getUser,
-        updateUser: updateUser
+        updateUser: updateUser,
+        getFriendHighScores: getFriendHighScores
     };
 };
 

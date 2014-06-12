@@ -1,5 +1,5 @@
 angular.module('friendquiz')
-    .factory('FriendQuizService', function($http, $q, OpenFB) {
+    .factory('FriendQuizService', function($http, $q, OpenFB, $rootScope) {
     
         function getQuestion() {
             var deferred = $q.defer();
@@ -11,12 +11,11 @@ angular.module('friendquiz')
             };
             $http.get('http://friendquiz-yup.rhcloud.com/question/', header)
                 .success(function (question) {
-                    if (question.error) {
-                        deferred.reject(question);
-                    } else {
-                        deferred.resolve(question);
+                    deferred.resolve(question);
+                }).error(function (error) {
+                    if (error.error && error.error.type === 'OAuthException') {
+                        $rootScope.$emit('OAuthException');
                     }
-                }).error(function(error) {
                     deferred.reject(error);
                 });
 
@@ -33,8 +32,19 @@ angular.module('friendquiz')
             return $http.post('http://friendquiz-yup.rhcloud.com/answer/', { 'answer': guess }, header);
         };
 
+        function getHighScores() {
+            var header = {
+                headers: {
+                    'userid': OpenFB.getFbId(),
+                    'token': OpenFB.getFbToken()
+                }
+            };
+            return $http.get('http://friendquiz-yup.rhcloud.com/highscores/', header);
+        };
+
         return {
             getQuestion: getQuestion,
-            guessAnswer: guessAnswer
+            guessAnswer: guessAnswer,
+            getHighScores: getHighScores
         };
     });

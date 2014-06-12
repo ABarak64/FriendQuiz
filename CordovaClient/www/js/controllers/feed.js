@@ -54,7 +54,7 @@ angular.module('friendquiz')
                     $scope.question = question;
                 }).catch(function (err) {
                     $scope.hide();
-                    $scope.error = err;
+                    $scope.error = err.error;
             });
         }
 

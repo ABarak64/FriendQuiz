@@ -1,4 +1,4 @@
-<ion-view title="Friends">
+<ion-view title="High Scores">
 
     <ion-nav-buttons side="left">
         <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
@@ -6,11 +6,24 @@
 
     <ion-content has-header="true">
 
-        <ion-list>
-            <ion-item ng-repeat="friend in friends" href="#/app/person/{{friend.id}}">
+       <!-- <ion-list>
+            <ion-item ng-repeat="friend in friends">
                 {{friend.name}}
             </ion-item>
-        </ion-list>
+        </ion-list>-->
+        <div ng-repeat="friend in friends">
+            <div class="item item-avatar row">
+                <div class="col col-25">
+                    <h1>{{friend.highScore}}</h1>
+                </div>
+                <div class="col col-20">
+                    <img ng-src="https://graph.facebook.com/{{friend.id}}/picture" />
+                </div>
+                <div class="col">
+                    <h2>{{friend.name}}</h2>
+                </div>
+            </div>
+        </div>
 
     </ion-content>
 

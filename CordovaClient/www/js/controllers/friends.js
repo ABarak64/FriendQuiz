@@ -1,12 +1,11 @@
 angular.module('friendquiz')
 
-    .controller('FriendsCtrl', function ($scope, $stateParams, OpenFB) {
-        OpenFB.get('/' + $stateParams.personId + '/friends', {limit: 50})
-            .success(function (result) {
-                console.log(result.data);
-                $scope.friends = result.data;
-            })
-            .error(function(data) {
+    .controller('FriendsCtrl', function ($scope, $stateParams, FriendQuizService) {
+        FriendQuizService.getHighScores()
+            .success(function(friends) {
+                console.log(friends);
+                $scope.friends = friends;
+        }).error(function (data) {
                 alert(data.error.message);
             });
     });

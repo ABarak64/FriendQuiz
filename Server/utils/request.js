@@ -55,7 +55,7 @@ exports.getJSONAsync = function (url) {
     });
 
     req.on('error', function (err) {
-        deferred.reject(new Error(err));
+        deferred.reject(err);
     });
 
     req.on('response', function (response) {

@@ -105,16 +105,26 @@ var SampleApp = function() {
                 .then(function(result) {
                     res.send(result);
                 }, function(error) {
-                    res.send({ error: error.message });
+                    res.send(500, error);
                 });
         });
+
+        self.app.get('/highscores', function(req, res) {
+            var friendService = new FriendQuiz(req.facebookUser);
+            friendService.getFriendHighScores()
+                .then(function(result) {
+                    res.send(result);
+                }, function(error) {
+                    res.send(500, error);
+                });
+        })
 
         self.app.post('/answer', function(req, res) {
             var friendService = new FriendQuiz(req.facebookUser);
             friendService.guessAnswer(parseInt(req.body.answer)).then(function(result) {
                 res.send(result);
             }).fail(function(error) {
-                res.send({ error: error.message });
+                res.send(500, error);
             });
         });
     };
