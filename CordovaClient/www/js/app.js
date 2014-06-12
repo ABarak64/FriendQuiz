@@ -52,32 +52,12 @@ var app = angular.module('friendquiz', ['ionic', 'openfb'])
                     }
                 }
             })
-
-            .state('app.profile', {
-                url: "/profile",
-                views: {
-                    'menuContent': {
-                        templateUrl: "templates/profile.html",
-                        controller: "ProfileCtrl"
-                    }
-                }
-            })
-
             .state('app.friends', {
                 url: "/person/:personId/friends",
                 views: {
                     'menuContent': {
                         templateUrl: "templates/friend-list.html",
                         controller: "FriendsCtrl"
-                    }
-                }
-            })
-            .state('app.person', {
-                url: "/person/:personId",
-                views: {
-                    'menuContent': {
-                        templateUrl: "templates/person.html",
-                        controller: "PersonCtrl"
                     }
                 }
             })
