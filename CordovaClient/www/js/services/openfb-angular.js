@@ -23,6 +23,8 @@ angular.module('openfb', [])
         // inside the module instead of keeping them local within the login function.
             deferredLogin,
 
+            requestedClose = false,
+
         // Indicates if the app is running inside Cordova
             runningInCordova,
 
@@ -91,14 +93,17 @@ angular.module('openfb', [])
                 loginWindow.addEventListener('loadstart', function (event) {
                     var url = event.url;
                     if (url.indexOf("access_token=") > 0 || url.indexOf("error=") > 0) {
+                        requestedClose = true;
                         loginWindow.close();
                         oauthCallback(url);
                     }
                 });
 
                 loginWindow.addEventListener('exit', function () {
-                    // Handle the situation where the user closes the login window manually before completing the login process
-                    deferredLogin.reject({error: 'user_cancelled', error_description: 'User cancelled login process', error_reason: "user_cancelled"});
+                    if (!requestedClose) {
+                        // Handle the situation where the user closes the login window manually before completing the login process
+                        deferredLogin.reject({ error: 'user_cancelled', error_description: 'User cancelled login process', error_reason: "user_cancelled" });
+                    }
                 });
             }
             // Note: if the app is running in the browser the loginWindow dialog will call back by invoking the
@@ -130,7 +135,7 @@ angular.module('openfb', [])
                 obj = parseQueryString(queryString);
                 deferredLogin.reject(obj);
             } else {
-                deferredLogin.reject();
+                deferredLogin.reject({error: 'No access token.'});
             }
         }
 
