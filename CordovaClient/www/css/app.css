@@ -15,3 +15,14 @@
 p, span {
     font-weight: normal;
 }
+
+.title {
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.title h1 {
+    font-size: 350%;
+    color: white;
+    text-align: center;
+}

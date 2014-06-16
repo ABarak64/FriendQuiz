@@ -1,6 +1,6 @@
 angular.module('friendquiz')
 
-    .controller('FriendsCtrl', function ($scope, $stateParams, FriendQuizService, $ionicLoading) {
+    .controller('FriendsCtrl', function ($scope, $stateParams, FriendQuizService, $ionicLoading, $rootScope) {
         // If getting friend scores causes an OAuth exception, hide the 'loading' screen if it is up.
         $rootScope.$on('OAuthException', function () {
             $scope.hide();
