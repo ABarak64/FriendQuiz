@@ -46,6 +46,7 @@ angular.module('friendquiz')
         }
 
         function loadQuestion() {
+            $scope.error = null;
             $scope.show('Getting a question...');
 
             FriendQuizService.getQuestion()
