@@ -12,18 +12,20 @@ angular.module('openfb', [])
     .factory('OpenFB', function ($rootScope, $q, $window, $http) {
 
         var FB_LOGIN_URL = 'https://www.facebook.com/dialog/oauth',
-
+            FB_LOGOUT_URL = 'https://www.facebook.com/logout.php',
         // By default we store fbtoken in sessionStorage. This can be overriden in init()
             tokenStore = window.sessionStorage,
 
             fbAppId,
-            oauthRedirectURL,
 
         // Because the OAuth login spans multiple processes, we need to keep the success/error handlers as variables
         // inside the module instead of keeping them local within the login function.
             deferredLogin,
 
-            requestedClose = false,
+            context = window.location.pathname.substring(0, window.location.pathname.indexOf("/", 2)),
+            oauthRedirectURL,
+            logoutRedirectURL,
+
 
         // Indicates if the app is running inside Cordova
             runningInCordova,
@@ -55,7 +57,6 @@ angular.module('openfb', [])
          * @param fbScope - The set of Facebook permissions requested
          */
         function login(fbScope) {
-
             if (!fbAppId) {
                 return error({error: 'Facebook App Id not set.'});
             }
@@ -67,8 +68,6 @@ angular.module('openfb', [])
             deferredLogin = $q.defer();
 
             loginProcessed = false;
-
-            logout();
 
             // Check if an explicit oauthRedirectURL has been provided in init(). If not, infer the appropriate value
             if (!oauthRedirectURL) {
@@ -84,6 +83,8 @@ angular.module('openfb', [])
                     }
                 }
             }
+            logout();
+            logoutRedirectURL = oauthRedirectURL;
 
             loginWindow = window.open(FB_LOGIN_URL + '?client_id=' + fbAppId + '&redirect_uri=' + oauthRedirectURL +
                 '&response_type=token&display=popup&scope=' + fbScope, '_blank', 'location=no');
@@ -154,7 +155,20 @@ angular.module('openfb', [])
          * Application-level logout: we simply discard the token.
          */
         function logout() {
-            tokenStore['fbtoken'] = undefined;
+            var logoutWindow,
+                token = tokenStore['fbtoken'];
+            
+             /* Remove token. Will fail silently if does not exist */
+            tokenStore.removeItem('fbtoken');
+            
+            if (token) {
+                logoutWindow = window.open(FB_LOGOUT_URL + '?access_token=' + token + '&next=' + logoutRedirectURL, '_blank', 'location=no');
+                if (runningInCordova) {
+                    setTimeout(function() {
+                        logoutWindow.close();
+                    }, 700);
+                }
+            }
         }
 
         /**
